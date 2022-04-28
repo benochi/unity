@@ -63,7 +63,8 @@ public class Player : MonoBehaviour
         }
         
     }
-
+    
+    //add coins that double jump height.
     private void OnTriggerEnter(Collider other) {
         //handle coins pickup, coin is layer 9
         if(other.gameObject.layer == 9){
