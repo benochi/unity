@@ -10,7 +10,8 @@ public class Player : MonoBehaviour
     private bool jumpKeyWasPressed;
     private float horizontalInput;
     private Rigidbody rigidBodyComponent;
-    
+    private int superJumpsRemaining;
+    private float adjustSpeed;
 
     // Start is called before the first frame update
     void Start()
@@ -26,25 +27,51 @@ public class Player : MonoBehaviour
             jumpKeyWasPressed = true;
         }
 
+        if(Input.GetKeyDown(KeyCode.D)){
+            adjustSpeed = 1;
+        }
+        if(Input.GetKeyDown(KeyCode.A)){
+            adjustSpeed = -1;
+        }
+        if(Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A)){
+            adjustSpeed = 0;
+        }
+
+        //movement
         horizontalInput = Input.GetAxis("Horizontal");
     }
 
     //FixedUpdate is called once every physics update. Unity updates 100x a second.
     private void FixedUpdate() {
+        //handle x of x,y,z with this line first, player can move in air. 
+        rigidBodyComponent.velocity = new Vector3(horizontalInput + adjustSpeed, rigidBodyComponent.velocity.y, 0);
+
         if(Physics.OverlapSphere(groundCheckTransform.position, 0.1f, playerMask).Length == 0){
             return;
         }
 
         if(jumpKeyWasPressed){
-            rigidBodyComponent.AddForce(Vector3.up * 5, ForceMode.VelocityChange);
+            float jumpPower = 5f;
+            if(superJumpsRemaining > 0){
+                jumpPower *= 2;
+                superJumpsRemaining--;
+            }
+            //jumpheight
+            rigidBodyComponent.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+
             jumpKeyWasPressed = false;
         }
-        //handle x of x,y,z 
-        rigidBodyComponent.velocity = new Vector3(
-            horizontalInput, 
-            rigidBodyComponent.velocity.y, 
-            0
-        );
+        
+    }
+
+    private void OnTriggerEnter(Collider other) {
+        //handle coins pickup, coin is layer 9
+        if(other.gameObject.layer == 9){
+            //other = coin. 
+            Destroy(other.gameObject);
+            superJumpsRemaining++;
+        }
     }
     
 }
+
