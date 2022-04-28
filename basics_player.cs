@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     private float horizontalInput;
     private Rigidbody rigidBodyComponent;
     private int superJumpsRemaining;
+    private int speedBoost;
     private float adjustSpeed;
 
     // Start is called before the first frame update
@@ -28,10 +29,18 @@ public class Player : MonoBehaviour
         }
 
         if(Input.GetKeyDown(KeyCode.D)){
-            adjustSpeed = 1;
+            adjustSpeed += 1;
+            if(speedBoost > 0){
+                adjustSpeed += 5;
+                speedBoost--;
+            }
         }
         if(Input.GetKeyDown(KeyCode.A)){
             adjustSpeed = -1;
+            if(speedBoost > 0){
+                adjustSpeed -= 5;
+                speedBoost--;
+            }
         }
         if(Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A)){
             adjustSpeed = 0;
@@ -63,7 +72,7 @@ public class Player : MonoBehaviour
         }
         
     }
-    
+
     //add coins that double jump height.
     private void OnTriggerEnter(Collider other) {
         //handle coins pickup, coin is layer 9
@@ -72,7 +81,12 @@ public class Player : MonoBehaviour
             Destroy(other.gameObject);
             superJumpsRemaining++;
         }
+
+        if(other.gameObject.layer == 10){
+            //other = speedBoost. 
+            Destroy(other.gameObject);
+            speedBoost++;
+        }
     }
     
 }
-
